@@ -1,6 +1,6 @@
 import pygame
 import sys
-from pywordmatch import main_screen
+from pywordmatch import intro_screen
 from pywordmatch.utils import get_font, BLACK, WHITE, LIGHT_GRAY, CYAN, DARK_CYAN, LIGHT_CYAN
 from pywordmatch.components.button import Button
 
@@ -45,8 +45,8 @@ def welcome_screen():
                 if event.button == 1:  # 左键
                     start_button.is_pressed = False
                     if start_button.check_hover(event.pos):
-                        # 切换到主页面
-                        main_screen.main_screen()
+                        # 切换到说明界面，而不是直接进入主界面
+                        intro_screen.intro_screen(screen, screen_width, screen_height)
                         return
         
         # 清屏 - 使用黑色背景

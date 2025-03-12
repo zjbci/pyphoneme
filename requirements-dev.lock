@@ -35,6 +35,8 @@ pyparsing==3.2.1
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
+pyyaml==6.0.2
+    # via pywordmatch
 scipy==1.15.2
     # via pywordmatch
 six==1.17.0
