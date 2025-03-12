@@ -6,7 +6,7 @@
 
 import pygame
 import sys
-from pywordmatch import main_screen
+from pywordmatch.screens import main
 from pywordmatch.utils import get_font, BLACK, WHITE, LIGHT_GRAY, CYAN, DARK_CYAN, LIGHT_CYAN
 from pywordmatch.components.button import Button
 
@@ -58,7 +58,7 @@ def intro_screen(screen, screen_width, screen_height):
                     start_button.is_pressed = False
                     if start_button.check_hover(event.pos):
                         # 切换到主页面
-                        main_screen.main_screen()
+                        main.main_screen()
                         return
         
         # 清屏 - 使用黑色背景

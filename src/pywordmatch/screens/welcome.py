@@ -1,7 +1,7 @@
 import pygame
 import sys
-from pywordmatch import intro_screen
-from pywordmatch.utils import get_font, BLACK, WHITE, LIGHT_GRAY, CYAN, DARK_CYAN, LIGHT_CYAN
+from pywordmatch.screens import intro
+from pywordmatch.utils import get_font, BLACK, WHITE, DARK_GREY, CYAN, DARK_CYAN, LIGHT_CYAN
 from pywordmatch.components.button import Button
 
 # 初始化pygame
@@ -46,7 +46,7 @@ def welcome_screen():
                     start_button.is_pressed = False
                     if start_button.check_hover(event.pos):
                         # 切换到说明界面，而不是直接进入主界面
-                        intro_screen.intro_screen(screen, screen_width, screen_height)
+                        intro.intro_screen(screen, screen_width, screen_height)
                         return
         
         # 清屏 - 使用黑色背景
@@ -57,7 +57,13 @@ def welcome_screen():
         welcome_text = font.render("欢迎参与汉语发声解码实验", True, LIGHT_CYAN)
         text_rect = welcome_text.get_rect(center=(screen_width // 2, int(screen_height * 0.375)))
         screen.blit(welcome_text, text_rect)
-        
+
+        # 绘制欢迎文字 - 使用浅青色
+        font = get_font(4)  # 原来是72，约为屏幕高度的7%
+        welcome_text = font.render("按 Esc 键退出实验", True, DARK_GREY)
+        text_rect = welcome_text.get_rect(center=(screen_width // 2, int(screen_height * 0.7)))
+        screen.blit(welcome_text, text_rect)
+
         # 绘制按钮
         start_button.draw(screen)
         
