@@ -36,28 +36,68 @@ def main_screen():
     current_question = None
     decoded_results = []
     decoding_complete = False
-    current_round = 0
+    current_round = 0  # 从0开始计数
     max_rounds = 20
     
-    # 创建"下一题"按钮
+    # 实验结果统计
+    experiment_results = {
+        'total_questions': 0,
+        'total_characters': 0,
+        'correct_characters': 0,
+        'questions': []  # 存储每个问题的详细信息
+    }
+    
+    # 创建"下一题"按钮和"完成实验"按钮
     button_width, button_height = 200, 60
     button_x = (screen_width - button_width) // 2
     button_y = int(screen_height * 0.75)  # 放在屏幕底部1/4的位置
     next_button = Button(button_x, button_y, button_width, button_height, 
                          "下一题", CYAN, DARK_CYAN, BLACK)
+    finish_button = Button(button_x, button_y, button_width, button_height, 
+                          "完成", CYAN, DARK_CYAN, BLACK)
     
     # 解码生成器
     decode_generator = None
     
     # 主循环
     running = True
-    while running and current_round < max_rounds:
+    next_question_clicked = False
+    
+    while running:
         # 如果没有当前问题或解码已完成且点击了下一题，获取新问题
         if current_question is None or (decoding_complete and next_question_clicked):
+            # 如果有当前问题，保存结果
+            if current_question is not None:
+                # 计算正确字符数
+                correct_count = 0
+                for i, result in enumerate(decoded_results):
+                    if i < len(current_question['a']) and result != "_":
+                        if result == current_question['a'][i]:
+                            correct_count += 1
+                
+                # 保存问题结果
+                question_result = {
+                    'id': current_question['id'],
+                    'question': current_question['q'],
+                    'expected': current_question['a'],
+                    'actual': decoded_results,
+                    'correct_count': correct_count
+                }
+                experiment_results['questions'].append(question_result)
+                experiment_results['total_characters'] += len(current_question['a'])
+                experiment_results['correct_characters'] += correct_count
+            
+            # 增加轮次计数
             current_round += 1
+            
+            # 检查是否达到最大轮次
             if current_round > max_rounds:
                 break
-                
+            
+            # 更新实验统计
+            experiment_results['total_questions'] += 1
+            
+            # 获取新问题
             current_question = question_generator.get_question()
             decoded_results = ["_"] * len(current_question['a'])  # 初始化为下划线
             decoding_complete = False
@@ -79,16 +119,31 @@ def main_screen():
             # 鼠标事件处理
             elif event.type == pygame.MOUSEMOTION:
                 if decoding_complete:
-                    next_button.check_hover(event.pos)
+                    if current_round == max_rounds:
+                        finish_button.check_hover(event.pos)
+                    else:
+                        next_button.check_hover(event.pos)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and decoding_complete:  # 左键
-                    if next_button.check_pressed(event.pos, True):
-                        pass  # 按下效果
+                    if current_round == max_rounds:
+                        if finish_button.check_pressed(event.pos, True):
+                            pass  # 按下效果
+                    else:
+                        if next_button.check_pressed(event.pos, True):
+                            pass  # 按下效果
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1 and decoding_complete:  # 左键
-                    next_button.is_pressed = False
-                    if next_button.check_hover(event.pos):
-                        next_question_clicked = True
+                    if current_round == max_rounds:
+                        finish_button.is_pressed = False
+                        if finish_button.check_hover(event.pos):
+                            # 保存最后一题的结果
+                            save_current_question_result(current_question, decoded_results, experiment_results)
+                            # 直接跳出循环，进入结算界面
+                            running = False
+                    else:
+                        next_button.is_pressed = False
+                        if next_button.check_hover(event.pos):
+                            next_question_clicked = True
         
         # 如果有解码生成器，获取下一个解码结果
         if decode_generator is not None and not decoding_complete:
@@ -151,9 +206,12 @@ def main_screen():
                                 (start_x + i * result_spacing - 20, line_y),
                                 (start_x + i * result_spacing + 20, line_y), 2)
         
-        # 如果解码完成，显示下一题按钮
+        # 如果解码完成，显示按钮
         if decoding_complete:
-            next_button.draw(screen)
+            if current_round == max_rounds:
+                finish_button.draw(screen)
+            else:
+                next_button.draw(screen)
         
         # 更新屏幕
         pygame.display.flip()
@@ -162,9 +220,37 @@ def main_screen():
         pygame.time.Clock().tick(60)
     
     # 实验结束，显示结束界面
-    game_over_screen(screen, screen_width, screen_height)
+    game_over_screen(screen, screen_width, screen_height, experiment_results)
 
-def game_over_screen(screen, screen_width, screen_height):
+def save_current_question_result(current_question, decoded_results, experiment_results):
+    """
+    保存当前问题的结果
+    
+    参数:
+        current_question: 当前问题
+        decoded_results: 解码结果
+        experiment_results: 实验结果统计
+    """
+    # 计算正确字符数
+    correct_count = 0
+    for i, result in enumerate(decoded_results):
+        if i < len(current_question['a']) and result != "_":
+            if result == current_question['a'][i]:
+                correct_count += 1
+    
+    # 保存问题结果
+    question_result = {
+        'id': current_question['id'],
+        'question': current_question['q'],
+        'expected': current_question['a'],
+        'actual': decoded_results,
+        'correct_count': correct_count
+    }
+    experiment_results['questions'].append(question_result)
+    experiment_results['total_characters'] += len(current_question['a'])
+    experiment_results['correct_characters'] += correct_count
+
+def game_over_screen(screen, screen_width, screen_height, experiment_results):
     """
     显示实验结束界面
     
@@ -172,11 +258,17 @@ def game_over_screen(screen, screen_width, screen_height):
         screen: pygame屏幕对象
         screen_width: 屏幕宽度
         screen_height: 屏幕高度
+        experiment_results: 实验结果统计数据
     """
+    # 计算正确率
+    accuracy = 0
+    if experiment_results['total_characters'] > 0:
+        accuracy = experiment_results['correct_characters'] / experiment_results['total_characters'] * 100
+    
     # 创建"返回主菜单"按钮
     button_width, button_height = 250, 60
     button_x = (screen_width - button_width) // 2
-    button_y = (screen_height + 100) // 2
+    button_y = int(screen_height * 0.75)  # 放在屏幕底部1/4的位置
     menu_button = Button(button_x, button_y, button_width, button_height, 
                          "返回主菜单", CYAN, DARK_CYAN, BLACK)
     
@@ -212,10 +304,34 @@ def game_over_screen(screen, screen_width, screen_height):
         screen.fill(BLACK)
         
         # 绘制实验结束文字
-        font = get_font(7)
-        game_over_text = font.render("实验结束", True, LIGHT_CYAN)
-        text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
-        screen.blit(game_over_text, text_rect)
+        title_font = get_font(7)
+        title_text = title_font.render("实验结束", True, LIGHT_CYAN)
+        title_rect = title_text.get_rect(center=(screen_width // 2, int(screen_height * 0.15)))
+        screen.blit(title_text, title_rect)
+        
+        # 绘制统计数据
+        stats_font = get_font(5)
+        line_height = int(screen_height * 0.07)
+        
+        # 题目数量
+        questions_text = stats_font.render(f"题目数量: {experiment_results['total_questions']}", True, WHITE)
+        questions_rect = questions_text.get_rect(center=(screen_width // 2, int(screen_height * 0.3)))
+        screen.blit(questions_text, questions_rect)
+        
+        # 解码文字总数
+        total_chars_text = stats_font.render(f"解码文字总数: {experiment_results['total_characters']}", True, WHITE)
+        total_chars_rect = total_chars_text.get_rect(center=(screen_width // 2, int(screen_height * 0.3) + line_height))
+        screen.blit(total_chars_text, total_chars_rect)
+        
+        # 解码正确总数
+        correct_chars_text = stats_font.render(f"解码正确总数: {experiment_results['correct_characters']}", True, WHITE)
+        correct_chars_rect = correct_chars_text.get_rect(center=(screen_width // 2, int(screen_height * 0.3) + 2 * line_height))
+        screen.blit(correct_chars_text, correct_chars_rect)
+        
+        # 解码正确率
+        accuracy_text = stats_font.render(f"解码正确率: {accuracy:.2f}%", True, WHITE)
+        accuracy_rect = accuracy_text.get_rect(center=(screen_width // 2, int(screen_height * 0.3) + 3 * line_height))
+        screen.blit(accuracy_text, accuracy_rect)
         
         # 绘制按钮
         menu_button.draw(screen)
