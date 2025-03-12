@@ -42,7 +42,7 @@ def main_screen():
     # 创建"下一题"按钮
     button_width, button_height = 200, 60
     button_x = (screen_width - button_width) // 2
-    button_y = screen_height - 100
+    button_y = int(screen_height * 0.75)  # 放在屏幕底部1/4的位置
     next_button = Button(button_x, button_y, button_width, button_height, 
                          "下一题", CYAN, DARK_CYAN, BLACK)
     
@@ -112,7 +112,7 @@ def main_screen():
         screen.fill(BLACK)
         
         # 绘制轮次信息
-        round_font = get_font(24)
+        round_font = get_font(2.5)
         round_text = round_font.render(f"第 {current_round}/{max_rounds} 题", True, LIGHT_GRAY)
         round_rect = round_text.get_rect(topleft=(20, 20))
         screen.blit(round_text, round_rect)
@@ -120,20 +120,20 @@ def main_screen():
         # 绘制问题
         if current_question:
             # 绘制诗句
-            question_font = get_font(48)
+            question_font = get_font(9)
             question_text = question_font.render(current_question['q'], True, LIGHT_CYAN)
             question_rect = question_text.get_rect(center=(screen_width // 2, screen_height // 3))
             screen.blit(question_text, question_rect)
             
             # 绘制解码结果
-            result_font = get_font(36)
-            result_spacing = 60  # 字符间距
+            result_font = get_font(7)
+            result_spacing = 100  # 字符间距
             total_width = result_spacing * len(decoded_results)
             start_x = (screen_width - total_width) // 2 + result_spacing // 2
             
             for i, result in enumerate(decoded_results):
                 result_text = result_font.render(result, True, WHITE)
-                result_rect = result_text.get_rect(center=(start_x + i * result_spacing, screen_height // 2))
+                result_rect = result_text.get_rect(center=(start_x + i * result_spacing, screen_height * 0.6))
                 screen.blit(result_text, result_rect)
                 
                 # 绘制下划线
@@ -203,7 +203,7 @@ def game_over_screen(screen, screen_width, screen_height):
         screen.fill(BLACK)
         
         # 绘制实验结束文字
-        font = get_font(72)
+        font = get_font(7)
         game_over_text = font.render("实验结束", True, LIGHT_CYAN)
         text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
         screen.blit(game_over_text, text_rect)

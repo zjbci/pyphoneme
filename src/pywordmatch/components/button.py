@@ -42,7 +42,7 @@ class Button:
         pygame.draw.rect(surface, LIGHT_CYAN, self.rect, 2, border_radius=10)  # 边框
         
         # 绘制文字
-        font = get_font(36)
+        font = get_font(4)
         text_surface = font.render(self.text, True, self.text_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         

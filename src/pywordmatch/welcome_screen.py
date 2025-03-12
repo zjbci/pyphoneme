@@ -12,13 +12,13 @@ screen_info = pygame.display.Info()
 screen_width = screen_info.current_w
 screen_height = screen_info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
-pygame.display.set_caption("欢迎界面")
+pygame.display.set_caption("汉语发声解码实验")
 
 def welcome_screen():
     # 创建开始按钮
     button_width, button_height = 200, 60
-    button_x = (screen_width - button_width) // 2
-    button_y = (screen_height + 100) // 2  # 在屏幕中心下方一点
+    button_x = (screen_width - button_width) // 2  # 水平居中
+    button_y = int(screen_height * 0.75)  # 在屏幕底部1/4的位置
     start_button = Button(button_x, button_y, button_width, button_height, 
                          "开始", CYAN, DARK_CYAN, BLACK)
     
@@ -53,9 +53,9 @@ def welcome_screen():
         screen.fill(BLACK)
         
         # 绘制欢迎文字 - 使用浅青色
-        font = get_font(72)
-        welcome_text = font.render("欢迎使用", True, LIGHT_CYAN)
-        text_rect = welcome_text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
+        font = get_font(8)  # 原来是72，约为屏幕高度的7%
+        welcome_text = font.render("欢迎参与汉语发声解码实验", True, LIGHT_CYAN)
+        text_rect = welcome_text.get_rect(center=(screen_width // 2, int(screen_height * 0.375)))
         screen.blit(welcome_text, text_rect)
         
         # 绘制按钮

@@ -20,17 +20,18 @@ def intro_screen(screen, screen_width, screen_height):
         screen_height: 屏幕高度
     """
     # 创建"我已理解，开始"按钮
-    button_width, button_height = 250, 60
+    button_width, button_height = 350, 60
     button_x = (screen_width - button_width) // 2
-    button_y = (screen_height + 200) // 2  # 在屏幕中心下方
+    button_y = int(screen_height * 0.75)  # 放在底部1/4的位置
     start_button = Button(button_x, button_y, button_width, button_height, 
                          "我已理解，开始", CYAN, DARK_CYAN, BLACK)
     
     # 说明文字 - 分三行显示，总共不超过50字
     intro_text = [
-        "这是一个声母匹配实验，你需要根据给出的诗句，",
-        "找出每个汉字对应的声母，并按顺序输入。",
-        "答对得分，答错扣分，看看你能得多少分！"
+        "这是一个汉语发声解码实验。被试需要根据",
+        "给出的诗句，朗读出每个汉字对应的声母，",
+        "解码器会对朗读时的脑信号进行解码，并将",
+        "解码结果显示在下方。                  "
     ]
     
     # 主循环
@@ -64,17 +65,17 @@ def intro_screen(screen, screen_width, screen_height):
         screen.fill(BLACK)
         
         # 绘制说明文字标题
-        title_font = get_font(48)
+        title_font = get_font(8)
         title_text = title_font.render("实验说明", True, LIGHT_CYAN)
-        title_rect = title_text.get_rect(center=(screen_width // 2, screen_height // 2 - 200))
+        title_rect = title_text.get_rect(center=(screen_width // 2, int(screen_height * 0.125)))
         screen.blit(title_text, title_rect)
         
         # 绘制说明文字内容
-        content_font = get_font(28)
-        line_height = 40
+        content_font = get_font(6)
+        line_height = 72
         for i, line in enumerate(intro_text):
             text = content_font.render(line, True, WHITE)
-            text_rect = text.get_rect(center=(screen_width // 2, screen_height // 2 - 80 + i * line_height))
+            text_rect = text.get_rect(center=(screen_width // 2, int(screen_height * 0.33) + i * line_height))
             screen.blit(text, text_rect)
         
         # 绘制按钮
