@@ -9,7 +9,7 @@ import sys
 import threading
 import time
 import os
-from pywordmatch.utils import get_font, BLACK, WHITE, LIGHT_GRAY, CYAN, DARK_CYAN, LIGHT_CYAN
+from pywordmatch.utils import get_font, BLACK, WHITE, LIGHT_GRAY, CYAN, DARK_CYAN, LIGHT_CYAN, GREEN, PINK
 from pywordmatch.components.button import Button
 from pywordmatch.question_generator import QuestionGenerator
 from pywordmatch.decoder import Decoder
@@ -132,13 +132,22 @@ def main_screen():
             start_x = (screen_width - total_width) // 2 + result_spacing // 2
             
             for i, result in enumerate(decoded_results):
-                result_text = result_font.render(result, True, WHITE)
+                # 确定文字颜色：如果已解码（不是下划线），则根据是否正确选择颜色
+                if result != "_":
+                    # 检查解码结果是否正确
+                    is_correct = (i < len(current_question['a']) and result == current_question['a'][i])
+                    text_color = GREEN if is_correct else PINK
+                else:
+                    text_color = WHITE  # 未解码的位置使用白色
+                
+                result_text = result_font.render(result, True, text_color)
                 result_rect = result_text.get_rect(center=(start_x + i * result_spacing, screen_height * 0.6))
                 screen.blit(result_text, result_rect)
                 
                 # 绘制下划线
                 line_y = result_rect.bottom + 5
-                pygame.draw.line(screen, WHITE, 
+                line_color = text_color if result != "_" else WHITE
+                pygame.draw.line(screen, line_color, 
                                 (start_x + i * result_spacing - 20, line_y),
                                 (start_x + i * result_spacing + 20, line_y), 2)
         

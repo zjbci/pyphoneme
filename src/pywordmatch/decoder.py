@@ -6,6 +6,7 @@
 
 import threading
 import time
+import random
 from scipy import io
 import numpy as np
 import os
@@ -23,6 +24,11 @@ class Decoder:
         """
         self.current_thread = None
         self.decode_results = []  # 存储解码结果
+        # 汉语拼音声母列表
+        self.all_initials = [
+            'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 
+            'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'
+        ]
     
     def decode(self, file_paths):
         """
@@ -63,6 +69,13 @@ class Decoder:
             # 模拟解码耗时
             time.sleep(0.5)
             
+            # 15% 的概率随机返回一个声母
+            if random.random() < 0.15:
+                random_initial = random.choice(self.all_initials)
+                self.decode_results.append(random_initial)
+                continue
+            
+            # 正常解码逻辑
             if file_path is None:
                 self.decode_results.append("?")
                 continue
